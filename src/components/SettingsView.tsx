@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Download, Bell, BellOff, MonitorSmartphone, Check } from 'lucide-react'
+import { Download, Bell, BellOff, MonitorSmartphone, Check, Smartphone } from 'lucide-react'
 import { THEMES, Theme } from '../data/themes'
 import { ACADEMIC_EVENTS, AcademicEvent } from '../data/academicCalendar'
 import { useTheme } from '../context/ThemeContext'
@@ -11,6 +11,11 @@ import {
   isNotificationsEnabled,
   setNotificationsEnabled,
   scheduleNotificationsForToday,
+  isNtfyEnabled,
+  setNtfyEnabled,
+  getNtfyTopic,
+  setNtfyTopic,
+  scheduleNtfyForToday,
 } from '../utils/notifications'
 import { dateToString } from '../utils/time'
 
@@ -18,6 +23,10 @@ export function SettingsView() {
   const { themeId, setThemeId, followSystem, setFollowSystem, isDark } = useTheme()
   const [notifEnabled, setNotifEnabled] = useState(isNotificationsEnabled)
   const [notifPermission, setNotifPermission] = useState(getPermission)
+  const [ntfyOn, setNtfyOn] = useState(isNtfyEnabled)
+  const [ntfyTopic, setNtfyTopicState] = useState(getNtfyTopic)
+  const [ntfyDraft, setNtfyDraft] = useState(getNtfyTopic)
+  const [ntfySaved, setNtfySaved] = useState(false)
   const [exportDone, setExportDone] = useState(false)
 
   const todayStr = dateToString(new Date())
@@ -25,7 +34,6 @@ export function SettingsView() {
 
   const handleToggleNotifications = async () => {
     if (!notificationsSupported()) return
-
     if (!notifEnabled) {
       const perm = await requestPermission()
       setNotifPermission(perm)
@@ -38,6 +46,22 @@ export function SettingsView() {
       setNotificationsEnabled(false)
       setNotifEnabled(false)
     }
+  }
+
+  const handleToggleNtfy = (on: boolean) => {
+    setNtfyEnabled(on)
+    setNtfyOn(on)
+    if (on && ntfyTopic) scheduleNtfyForToday()
+  }
+
+  const handleSaveNtfyTopic = () => {
+    const cleaned = ntfyDraft.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '')
+    setNtfyTopic(cleaned)
+    setNtfyTopicState(cleaned)
+    setNtfyDraft(cleaned)
+    setNtfySaved(true)
+    if (ntfyOn && cleaned) scheduleNtfyForToday()
+    setTimeout(() => setNtfySaved(false), 2500)
   }
 
   const handleExport = () => {
@@ -119,15 +143,105 @@ export function SettingsView() {
         </p>
       </section>
 
-      {/* Notifications */}
+      {/* NTFY App Notifications */}
       <section
         className="theme-card rounded-2xl p-4"
         style={{ background: 'var(--s-card)', border: '1px solid var(--s-card-border)', boxShadow: 'var(--s-shadow)' }}
       >
-        <SectionLabel>Notifications</SectionLabel>
+        <SectionLabel>NTFY App Notifications</SectionLabel>
+
+        {/* Topic input */}
+        <div className="mb-4">
+          <p className="text-xs font-semibold mb-1.5" style={{ color: 'var(--s-text2)' }}>Your NTFY topic</p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={ntfyDraft}
+              onChange={e => setNtfyDraft(e.target.value)}
+              placeholder="e.g. upv-schedule-erik"
+              className="flex-1 text-sm px-3 py-2 rounded-xl outline-none"
+              style={{
+                background: 'var(--s-input)',
+                color: 'var(--s-text)',
+                border: '1px solid var(--s-card-border)',
+              }}
+            />
+            <button
+              onClick={handleSaveNtfyTopic}
+              disabled={!ntfyDraft.trim()}
+              className="px-3 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95 disabled:opacity-40"
+              style={{
+                background: ntfySaved ? '#DCFCE7' : `linear-gradient(135deg, var(--s-hero-from), var(--s-hero-to))`,
+                color: ntfySaved ? '#166534' : '#ffffff',
+                minWidth: 64,
+              }}
+            >
+              {ntfySaved ? <Check size={14} style={{ margin: 'auto' }} /> : 'Save'}
+            </button>
+          </div>
+          <p className="text-[11px] mt-1.5" style={{ color: 'var(--s-muted)' }}>
+            Only lowercase letters, numbers, - and _. Pick something unique.
+          </p>
+        </div>
+
+        {/* Enable toggle */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Smartphone size={18} style={{ color: ntfyOn && ntfyTopic ? 'var(--s-accent)' : 'var(--s-muted)' }} />
+            <div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--s-text)' }}>Send to NTFY app</p>
+              <p className="text-xs" style={{ color: 'var(--s-muted)' }}>
+                {ntfyTopic ? `ntfy.sh/${ntfyTopic}` : 'Set a topic first'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => handleToggleNtfy(!ntfyOn)}
+            disabled={!ntfyTopic}
+            className="relative w-12 h-6 rounded-full transition-colors duration-200 disabled:opacity-40"
+            style={{ background: ntfyOn && ntfyTopic ? 'var(--s-accent)' : 'var(--s-input)' }}
+          >
+            <div
+              className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all duration-200"
+              style={{ left: ntfyOn && ntfyTopic ? '1.625rem' : '0.125rem' }}
+            />
+          </button>
+        </div>
+
+        {/* Instructions */}
+        <div className="rounded-xl p-3" style={{ background: 'var(--s-input)' }}>
+          <p className="text-xs font-bold mb-2" style={{ color: 'var(--s-text)' }}>How to set up:</p>
+          <div className="flex flex-col gap-1.5">
+            {[
+              'Open the NTFY app on your phone',
+              'Tap + → Subscribe to topic',
+              `Type your topic name (e.g. upv-schedule-erik)`,
+              'Save a topic above and enable the toggle',
+              'Open this app each morning — notifications are scheduled for the day',
+            ].map((step, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <span
+                  className="w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5"
+                  style={{ background: 'var(--s-accent)', color: '#ffffff' }}
+                >
+                  {i + 1}
+                </span>
+                <p className="text-xs" style={{ color: 'var(--s-text2)' }}>{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Browser Notifications (fallback) */}
+      <section
+        className="theme-card rounded-2xl p-4"
+        style={{ background: 'var(--s-card)', border: '1px solid var(--s-card-border)', boxShadow: 'var(--s-shadow)' }}
+      >
+        <SectionLabel>Browser Notifications</SectionLabel>
         {!notificationsSupported() ? (
           <p className="text-xs" style={{ color: 'var(--s-muted)' }}>
-            Push notifications aren't supported in this browser.
+            Not supported in this browser.
           </p>
         ) : (
           <>
@@ -141,9 +255,7 @@ export function SettingsView() {
                 <div>
                   <p className="text-sm font-semibold" style={{ color: 'var(--s-text)' }}>15-min reminders</p>
                   <p className="text-xs" style={{ color: 'var(--s-muted)' }}>
-                    {notifPermission === 'denied'
-                      ? 'Blocked — enable in browser settings'
-                      : 'Alert before each class today'}
+                    {notifPermission === 'denied' ? 'Blocked in browser settings' : 'Shows while app is open'}
                   </p>
                 </div>
               </div>
@@ -161,7 +273,7 @@ export function SettingsView() {
             </div>
             {notifPermission === 'denied' && (
               <p className="text-xs mt-2 px-1" style={{ color: '#DC2626' }}>
-                Notifications blocked. Go to browser settings → Site settings → Notifications to allow.
+                Go to browser settings → Site settings → Notifications to allow.
               </p>
             )}
           </>
