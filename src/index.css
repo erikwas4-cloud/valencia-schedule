@@ -2,9 +2,142 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+/* ============================================================
+   THEME CUSTOM PROPERTIES
+   Applied via html[data-theme="..."] set by ThemeContext
+   ============================================================ */
+
+:root,
+html[data-theme="default"] {
+  --s-bg: #F8FAFC;
+  --s-card: #ffffff;
+  --s-card-border: #F1F5F9;
+  --s-text: #0F172A;
+  --s-text2: #64748B;
+  --s-muted: #94A3B8;
+  --s-nav: rgba(255, 255, 255, 0.95);
+  --s-nav-border: #F1F5F9;
+  --s-past: #F8FAFC;
+  --s-past-text: #94A3B8;
+  --s-past-border: #E2E8F0;
+  --s-separator: #F1F5F9;
+  --s-input: #F1F5F9;
+  --s-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --s-shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  --s-hero-from: #f97316;
+  --s-hero-to: #dc2626;
+  --s-accent: #f97316;
+  --s-radius: 16px;
   color-scheme: light;
 }
+
+html[data-theme="dark"] {
+  --s-bg: #0F172A;
+  --s-card: #1E293B;
+  --s-card-border: #334155;
+  --s-text: #F1F5F9;
+  --s-text2: #94A3B8;
+  --s-muted: #475569;
+  --s-nav: rgba(15, 23, 42, 0.97);
+  --s-nav-border: #1E293B;
+  --s-past: #0F172A;
+  --s-past-text: #334155;
+  --s-past-border: #1E293B;
+  --s-separator: #1E293B;
+  --s-input: #0F172A;
+  --s-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  --s-shadow-md: 0 4px 8px rgba(0,0,0,0.5);
+  --s-hero-from: #1E293B;
+  --s-hero-to: #0F172A;
+  --s-accent: #f97316;
+  --s-radius: 16px;
+  color-scheme: dark;
+}
+
+html[data-theme="glass"] {
+  --s-bg: transparent;
+  --s-card: rgba(255, 255, 255, 0.13);
+  --s-card-border: rgba(255, 255, 255, 0.22);
+  --s-text: rgba(255, 255, 255, 0.96);
+  --s-text2: rgba(255, 255, 255, 0.72);
+  --s-muted: rgba(255, 255, 255, 0.46);
+  --s-nav: rgba(255, 255, 255, 0.08);
+  --s-nav-border: rgba(255, 255, 255, 0.15);
+  --s-past: rgba(255, 255, 255, 0.05);
+  --s-past-text: rgba(255, 255, 255, 0.32);
+  --s-past-border: rgba(255, 255, 255, 0.08);
+  --s-separator: rgba(255, 255, 255, 0.12);
+  --s-input: rgba(255, 255, 255, 0.12);
+  --s-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  --s-shadow-md: 0 8px 32px rgba(0,0,0,0.22);
+  --s-hero-from: rgba(255,255,255,0.18);
+  --s-hero-to: rgba(255,255,255,0.06);
+  --s-accent: #ffffff;
+  --s-radius: 20px;
+  color-scheme: dark;
+}
+
+/* Glass: fixed gradient background via pseudo-element (iOS safe) */
+html[data-theme="glass"]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #f97316 0%, #a855f7 55%, #3b82f6 100%);
+  z-index: -1;
+}
+html[data-theme="glass"] body {
+  background: transparent !important;
+}
+
+html[data-theme="minimal"] {
+  --s-bg: #ffffff;
+  --s-card: #ffffff;
+  --s-card-border: #E5E7EB;
+  --s-text: #111111;
+  --s-text2: #6B7280;
+  --s-muted: #9CA3AF;
+  --s-nav: rgba(255, 255, 255, 0.99);
+  --s-nav-border: #E5E7EB;
+  --s-past: #F9FAFB;
+  --s-past-text: #D1D5DB;
+  --s-past-border: #F3F4F6;
+  --s-separator: #F3F4F6;
+  --s-input: #F3F4F6;
+  --s-shadow: none;
+  --s-shadow-md: none;
+  --s-hero-from: #111111;
+  --s-hero-to: #374151;
+  --s-accent: #111111;
+  --s-radius: 8px;
+  color-scheme: light;
+}
+
+html[data-theme="terra"] {
+  --s-bg: #FDF6EC;
+  --s-card: #FFFFFF;
+  --s-card-border: #F3E8D5;
+  --s-text: #3D1F0F;
+  --s-text2: #7C4A2C;
+  --s-muted: #B08060;
+  --s-nav: rgba(253, 246, 236, 0.97);
+  --s-nav-border: #F3E8D5;
+  --s-past: #FDF6EC;
+  --s-past-text: #B08060;
+  --s-past-border: #F3E8D5;
+  --s-separator: #F3E8D5;
+  --s-input: #F9EDD9;
+  --s-shadow: 0 1px 3px rgba(100,50,0,0.08);
+  --s-shadow-md: 0 4px 8px rgba(100,50,0,0.12);
+  --s-hero-from: #C1440E;
+  --s-hero-to: #8B2500;
+  --s-accent: #C1440E;
+  --s-radius: 20px;
+  color-scheme: light;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
 
 * {
   -webkit-tap-highlight-color: transparent;
@@ -13,6 +146,7 @@
 
 html {
   overscroll-behavior: none;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -21,8 +155,9 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #F8FAFC;
+  background: var(--s-bg);
   overflow-x: hidden;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 button {
@@ -30,18 +165,20 @@ button {
   touch-action: manipulation;
 }
 
-/* Safe area support */
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 0;
   height: 0;
+}
+
+/* Glass backdrop on .theme-card elements */
+html[data-theme="glass"] .theme-card {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Smooth theme transitions */
+.theme-card,
+.theme-nav,
+.theme-text {
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
