@@ -63,17 +63,21 @@ export function ClassCard({ event, status, nowMin = 0, compact = false, onClick,
     setShowNote(v => !v)
   }
 
+  const isAlternate = !!event.isAlternate
+
   return (
     <div
       onClick={onClick}
       className={`theme-card relative overflow-hidden transition-all duration-200 ${
         onClick ? 'cursor-pointer active:scale-[0.98]' : ''
-      } ${isPast ? 'opacity-50' : ''}`}
+      } ${isPast ? 'opacity-50' : ''} ${isAlternate ? 'opacity-70' : ''}`}
       style={{
         borderRadius: 'var(--s-radius)',
         background: isCurrent ? course.color : isPast ? 'var(--s-past)' : 'var(--s-card)',
         border: isCurrent
           ? 'none'
+          : isAlternate
+          ? `1.5px dashed ${course.color}88`
           : `1px solid ${isPast ? 'var(--s-past-border)' : 'var(--s-card-border)'}`,
         boxShadow: isCurrent ? 'var(--s-shadow-md)' : 'var(--s-shadow)',
         outline: isCurrent ? `2px solid ${course.color}` : 'none',
@@ -87,12 +91,28 @@ export function ClassCard({ event, status, nowMin = 0, compact = false, onClick,
           style={{
             borderRadius: 'var(--s-radius) 0 0 var(--s-radius)',
             background: isPast ? 'var(--s-past-border)' : course.color,
+            opacity: isAlternate ? 0.5 : 1,
           }}
         />
       )}
 
+      {/* Alternate-option badge */}
+      {isAlternate && !isCurrent && (
+        <div
+          className="absolute top-2 right-2 flex items-center gap-1 rounded-full px-1.5 py-0.5"
+          style={{ background: isGlass || isDark ? course.color + '30' : course.lightColor }}
+        >
+          <span
+            className="text-[9px] font-bold uppercase tracking-wide"
+            style={{ color: isGlass || isDark ? course.color : course.textColor }}
+          >
+            Alt. option
+          </span>
+        </div>
+      )}
+
       {/* Conflict badge */}
-      {isConflict && !isCurrent && (
+      {isConflict && !isCurrent && !isAlternate && (
         <div className="absolute top-2 right-2 flex items-center gap-1 bg-amber-100 text-amber-700 rounded-full px-1.5 py-0.5">
           <AlertTriangle size={9} strokeWidth={2.5} />
           <span className="text-[9px] font-bold uppercase tracking-wide">Overlap</span>

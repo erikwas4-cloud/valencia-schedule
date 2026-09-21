@@ -66,9 +66,10 @@ export function TodayView({ now }: Props) {
   const greeting = getGreeting(now)
   const { isDark } = useTheme()
 
-  const currentEvent = events.find(e => getEventStatus(e, nowMin) === 'current')
-  const nextEvent = events.find(e => getEventStatus(e, nowMin) === 'upcoming')
-  const allDone = events.length > 0 && events.every(e => getEventStatus(e, nowMin) === 'past')
+  const realEvents = events.filter(e => !e.isAlternate)
+  const currentEvent = realEvents.find(e => getEventStatus(e, nowMin) === 'current')
+  const nextEvent = realEvents.find(e => getEventStatus(e, nowMin) === 'upcoming')
+  const allDone = realEvents.length > 0 && realEvents.every(e => getEventStatus(e, nowMin) === 'past')
   const hasClasses = events.length > 0
 
   const nextMinsAway = nextEvent ? toMinutes(nextEvent.startTime) - nowMin : null
@@ -79,8 +80,8 @@ export function TodayView({ now }: Props) {
 
   const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
 
-  const conflictIds = getConflictIds(events)
-  const freeGaps = getFreeGaps(events)
+  const conflictIds = getConflictIds(events.filter(e => !e.isAlternate))
+  const freeGaps = getFreeGaps(events.filter(e => !e.isAlternate))
 
   // Build interleaved list of events + gaps
   const sortedEvents = [...events].sort((a, b) => toMinutes(a.startTime) - toMinutes(b.startTime))

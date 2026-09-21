@@ -3,6 +3,7 @@ import { BottomNav, Tab } from './components/BottomNav'
 import { TodayView } from './components/TodayView'
 import { WeekView } from './components/WeekView'
 import { CoursesView } from './components/CoursesView'
+import { ExamsView } from './components/ExamsView'
 import { SettingsView } from './components/SettingsView'
 import { useNow } from './hooks/useNow'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
@@ -84,6 +85,7 @@ function AppShell() {
         {tab === 'today' && <TodayView now={now} />}
         {tab === 'week' && <WeekView now={now} />}
         {tab === 'courses' && <CoursesView now={now} />}
+        {tab === 'exams' && <ExamsView now={now} />}
         {tab === 'settings' && <SettingsView />}
       </main>
 

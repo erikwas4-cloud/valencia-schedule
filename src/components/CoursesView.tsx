@@ -14,6 +14,7 @@ interface CourseDetail {
   code: string
   course: Course
   events: ClassEvent[]
+  alternateEvents: ClassEvent[]
   theory: ClassEvent[]
   practice: ClassEvent[]
   nextEvent: ClassEvent | null
@@ -24,12 +25,13 @@ function buildCourseDetails(now: Date): CourseDetail[] {
   const nowMin = currentTimeMinutes(now)
 
   return Object.entries(COURSES).map(([code, course]) => {
-    const events = schedule
-      .filter(e => e.courseCode === code)
-      .sort((a, b) => {
-        if (a.date !== b.date) return a.date.localeCompare(b.date)
-        return a.startTime.localeCompare(b.startTime)
-      })
+    const sortByDate = (a: ClassEvent, b: ClassEvent) => {
+      if (a.date !== b.date) return a.date.localeCompare(b.date)
+      return a.startTime.localeCompare(b.startTime)
+    }
+    const allForCourse = schedule.filter(e => e.courseCode === code)
+    const events = allForCourse.filter(e => !e.isAlternate).sort(sortByDate)
+    const alternateEvents = allForCourse.filter(e => e.isAlternate).sort(sortByDate)
     const theory = events.filter(e => e.type === 'T')
     const practice = events.filter(e => e.type === 'P')
 
@@ -40,7 +42,7 @@ function buildCourseDetails(now: Date): CourseDetail[] {
         return false
       }) ?? null
 
-    return { code, course, events, theory, practice, nextEvent }
+    return { code, course, events, alternateEvents, theory, practice, nextEvent }
   })
 }
 
@@ -147,7 +149,7 @@ function CourseCard({ detail, onClick }: { detail: CourseDetail; onClick: () => 
 }
 
 function CourseDetailView({ detail, onClose }: { detail: CourseDetail; onClose: () => void }) {
-  const { course, events, theory, practice, nextEvent } = detail
+  const { course, events, alternateEvents, theory, practice, nextEvent } = detail
   const [tab, setTab] = useState<'all' | 'T' | 'P'>('all')
   const { isDark } = useTheme()
 
@@ -297,6 +299,56 @@ function CourseDetailView({ detail, onClose }: { detail: CourseDetail; onClose: 
           })}
         </div>
       </div>
+
+      {/* Alternative option (e.g. Schedule 2's Estadística group) */}
+      {alternateEvents.length > 0 && (
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-3 px-1 flex items-center gap-2" style={{ color: 'var(--s-muted)' }}>
+            <Calendar size={11} />
+            Alternative option ({alternateEvents.length} sessions)
+          </h2>
+          <p className="text-xs mb-2 px-1" style={{ color: 'var(--s-muted)' }}>
+            A different group/day you could pick instead — not part of your actual schedule.
+          </p>
+          <div className="flex flex-col gap-2">
+            {alternateEvents.map(event => {
+              const bg = isDark ? course.color + '18' : course.lightColor
+              const textC = isDark ? course.color : course.textColor
+              return (
+                <div
+                  key={event.id}
+                  className="rounded-xl px-4 py-3 flex items-center gap-3 opacity-80"
+                  style={{
+                    background: 'var(--s-card)',
+                    border: `1.5px dashed ${course.color}88`,
+                  }}
+                >
+                  <div className="w-1 h-10 rounded-full opacity-50" style={{ background: course.color }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold" style={{ color: 'var(--s-text)' }}>
+                      {formatDateShort(event.date)}
+                    </p>
+                    <p className="text-xs flex items-center gap-2 mt-0.5" style={{ color: 'var(--s-text2)' }}>
+                      <Clock size={9} />
+                      {formatTime(event.startTime)}–{formatTime(event.endTime)}
+                      {event.room && (
+                        <>
+                          <span style={{ color: 'var(--s-muted)' }}>·</span>
+                          <MapPin size={9} />
+                          {event.room}
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: bg, color: textC }}>
+                    {event.type}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

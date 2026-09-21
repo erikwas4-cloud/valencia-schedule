@@ -1,6 +1,6 @@
-import { Sun, CalendarDays, GraduationCap, Settings } from 'lucide-react'
+import { Sun, CalendarDays, GraduationCap, ClipboardCheck, Settings } from 'lucide-react'
 
-export type Tab = 'today' | 'week' | 'courses' | 'settings'
+export type Tab = 'today' | 'week' | 'courses' | 'exams' | 'settings'
 
 interface Props {
   active: Tab
@@ -11,6 +11,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Sun }[] = [
   { id: 'today', label: 'Today', Icon: Sun },
   { id: 'week', label: 'Week', Icon: CalendarDays },
   { id: 'courses', label: 'Courses', Icon: GraduationCap },
+  { id: 'exams', label: 'Exams', Icon: ClipboardCheck },
   { id: 'settings', label: 'Settings', Icon: Settings },
 ]
 

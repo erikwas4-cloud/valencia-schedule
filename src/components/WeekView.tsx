@@ -68,10 +68,10 @@ export function WeekView({ now }: Props) {
   const displayDate = isSelectedInWeek ? selectedDate : weekDates[0]
 
   const events = getEventsForDate(displayDate)
-  const conflictIds = getConflictIds(events)
+  const conflictIds = getConflictIds(events.filter(e => !e.isAlternate))
 
   const allWeekEvents = useMemo(() => weekDates.flatMap(d => getEventsForDate(d)), [weekDates])
-  const weeklyMinutes = getWeeklyMinutes(allWeekEvents)
+  const weeklyMinutes = getWeeklyMinutes(allWeekEvents.filter(e => !e.isAlternate))
 
   const goBack = () => {
     const newMonday = addWeeks(currentMonday, -1)
@@ -141,7 +141,7 @@ export function WeekView({ now }: Props) {
             const isSelected = date === displayDate
             const dayNum = new Date(date + 'T12:00:00').getDate()
             const dayName = getDayShort(date)
-            const dayConflicts = getConflictIds(dayEvents)
+            const dayConflicts = getConflictIds(dayEvents.filter(e => !e.isAlternate))
             const hasConflict = dayConflicts.size > 0
 
             return (
@@ -242,7 +242,7 @@ function DayDots({ events, isSelected, isDark }: { events: ClassEvent[]; isSelec
 }
 
 function WeekMiniGrid({ weekDates, todayStr, nowMin, isDark }: { weekDates: string[]; todayStr: string; nowMin: number; isDark: boolean }) {
-  const allEvents = weekDates.flatMap(d => getEventsForDate(d))
+  const allEvents = weekDates.flatMap(d => getEventsForDate(d)).filter(e => !e.isAlternate)
   if (allEvents.length === 0) return null
 
   const uniqueCourses = [...new Set(allEvents.map(e => e.courseCode))]
